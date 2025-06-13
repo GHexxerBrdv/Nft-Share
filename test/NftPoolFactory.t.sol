@@ -62,5 +62,42 @@ contract NftPoolFactory is Test {
         assertEq(createdTokenId, tokenId);
         assertEq(NftPool(pool).totalAtom(), 1000e18);
         assertEq(atom.balanceOf(user), 1000e18);
+
+        vm.prank(user);
+        vm.expectRevert();
+        factory.changeFee(0.1 ether);
+
+        vm.prank(user);
+        vm.expectRevert();
+        factory.withdrawFees();
+
+        vm.prank(owner);
+        factory.changeFee(1 ether);
+        vm.prank(owner);
+        factory.withdrawFees();
+
+        assertEq(factory.fee(), 1 ether);
+        assertEq(address(factory).balance, 0);
+        console2.log(owner.balance);
+
+        vm.prank(owner);
+        vm.expectRevert();
+        factory.changeFee(0 ether);
+    }
+
+    function test_wrongOwnerOfNft() public {
+        address user = makeAddr("user");
+        vm.deal(user, 2 ether);
+
+        vm.startPrank(user);
+        uint256 tokenId = nft.safeMint{value: 0.15 ether}("image url");
+        assertEq(nft._nextTokenId(), 1);
+        assertEq(nft.tokenURI(tokenId), "image url");
+        nft.approve(address(factory), tokenId);
+        vm.expectRevert();
+        address pool = factory.createNftFraction{value: 0.16 ether}(address(nft), tokenId, 0);
+        vm.stopPrank();
+        vm.expectRevert();
+        factory.createNftFraction{value: 0.16 ether}(address(nft), tokenId, 1000e18);
     }
 }
