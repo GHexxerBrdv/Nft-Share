@@ -13,7 +13,7 @@ contract AtomTest is Test {
 
     function setUp() public {
         vm.startPrank(owner);
-        atom = new Atom(nft, tokenId, pool);
+        atom = new Atom(nft, tokenId, 1000e18, owner);
         vm.stopPrank();
     }
 
