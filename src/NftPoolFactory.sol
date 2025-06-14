@@ -32,7 +32,7 @@ contract PoolFactory is Ownable, ReentrancyGuard {
         nonReentrant
         returns (address)
     {
-        address caller = msg.sender; 
+        address caller = msg.sender;
 
         require(nft.code.length > 0, "Not a contract");
 
@@ -58,10 +58,10 @@ contract PoolFactory is Ownable, ReentrancyGuard {
         IERC721(nft).transferFrom(caller, address(pool), tokenId);
 
         /**
-         * @notice i have added this checks because anyone can create atoms by passing fake nft or such nft that reverts, 
+         * @notice i have added this checks because anyone can create atoms by passing fake nft or such nft that reverts,
          * results into minting the token and pool does not own any nft.
          */
-        if(IERC721(nft).ownerOf(tokenId) != address(pool)) {
+        if (IERC721(nft).ownerOf(tokenId) != address(pool)) {
             revert PoolFactory__NftIsNOtTransfered();
         }
 
@@ -89,7 +89,7 @@ contract PoolFactory is Ownable, ReentrancyGuard {
         }
     }
 
-    function getFee() external view returns(uint256) {
+    function getFee() external view returns (uint256) {
         return fee;
     }
 }

@@ -8,7 +8,6 @@ import {AtomNft} from "../src/token/AtomNft.sol";
 import {NftPool} from "../src/NftPool.sol";
 
 contract Interactions is Script {
-
     string public url = "okokokokok";
     uint256 public atoms = 1000e18;
 

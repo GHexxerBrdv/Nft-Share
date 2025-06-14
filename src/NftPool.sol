@@ -33,7 +33,6 @@ contract NftPool is Ownable, ReentrancyGuard {
         totalAtom = i_atom.getTotalSupply();
     }
 
-
     function getNft() external view returns (address) {
         return i_nft;
     }

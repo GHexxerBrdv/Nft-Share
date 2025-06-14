@@ -37,8 +37,8 @@ contract AtomNft is ERC721, ERC721URIStorage, ReentrancyGuard, Ownable {
         _setTokenURI(tokenId, uri);
 
         /**
-         * @notice Refunds can be expensive because every time i refunds the user if they send more fees. 
-         * And it can be possible that they can send dust amount, 
+         * @notice Refunds can be expensive because every time i refunds the user if they send more fees.
+         * And it can be possible that they can send dust amount,
          * And for this dust amount the function will call external call and it can be more gas consuptive
          * So, For he security reason is am removinf refund
          */
