@@ -12,17 +12,18 @@ contract NftPool is Ownable, ReentrancyGuard {
     error NftPool__OnlyHolderCanSellAtom();
     error NftPool__WithdrawFailed();
 
-    address public immutable i_nft;
-    uint256 public immutable i_tokenId;
-    uint256 public totalAtom;
-    Atom public immutable i_atom;
-
-    mapping(address holder => uint256 share) private atomHolder;
-    mapping(address holder => bool) private isHolder;
-    mapping(address user => uint256) private withdraws;
+    address private immutable i_nft;
+    uint256 private immutable i_tokenId;
+    uint256 private immutable totalAtom;
+    Atom private immutable i_atom;
+    /**
+     * @notice i am removing these mapping cause there is no usage of them.
+     */
+    // mapping(address holder => uint256 share) private atomHolder;
+    // mapping(address holder => bool) private isHolder;
+    // mapping(address user => uint256) private withdraws;
 
     event BoughtNftAtom(address buyer, uint256 nftId, address atom, uint256 amount);
-
     event SoldNftAtom(address seller, uint256 nftId, address atom, uint256 amount);
 
     constructor(address nft, uint256 tokenId, uint256 atomAmount, address caller) Ownable(msg.sender) {
@@ -30,6 +31,23 @@ contract NftPool is Ownable, ReentrancyGuard {
         i_tokenId = tokenId;
         i_atom = new Atom(nft, tokenId, atomAmount, caller);
         totalAtom = i_atom.getTotalSupply();
+    }
+
+
+    function getNft() external view returns (address) {
+        return i_nft;
+    }
+
+    function getTokenId() external view returns (uint256) {
+        return i_tokenId;
+    }
+
+    function getAtom() external view returns (address) {
+        return address(i_atom);
+    }
+
+    function getTotalAtom() external view returns (uint256) {
+        return totalAtom;
     }
 
     // function buyAtom() external payable nonReentrant returns (uint256) {
@@ -88,21 +106,5 @@ contract NftPool is Ownable, ReentrancyGuard {
     //     if (success) {
     //         revert NftPool__WithdrawFailed();
     //     }
-    // }
-
-    // function getNft() external view returns (address) {
-    //     return i_nft;
-    // }
-
-    // function getTokenId() external view returns (uint256) {
-    //     return i_tokenId;
-    // }
-
-    // function getAtom() external view returns (address) {
-    //     return address(i_atom);
-    // }
-
-    // function getTotalAtom() external view returns (uint256) {
-    //     return totalAtom;
     // }
 }

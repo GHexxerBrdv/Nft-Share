@@ -55,12 +55,12 @@ contract NftPoolFactory is Test {
         assertEq(nft.ownerOf(tokenId), pool);
         console2.log("the balance of factory: ", address(factory).balance);
 
-        atom = NftPool(pool).i_atom();
-        AtomNft createdNft = AtomNft(NftPool(pool).i_nft());
-        uint256 createdTokenId = uint256(NftPool(pool).i_tokenId());
+        atom = Atom(NftPool(pool).getAtom());
+        AtomNft createdNft = AtomNft(NftPool(pool).getNft());
+        uint256 createdTokenId = uint256(NftPool(pool).getTokenId());
         assertEq(address(createdNft), address(nft));
         assertEq(createdTokenId, tokenId);
-        assertEq(NftPool(pool).totalAtom(), 1000e18);
+        assertEq(NftPool(pool).getTotalAtom(), 1000e18);
         assertEq(atom.balanceOf(user), 1000e18);
 
         vm.prank(user);
@@ -95,7 +95,7 @@ contract NftPoolFactory is Test {
         assertEq(nft.tokenURI(tokenId), "image url");
         nft.approve(address(factory), tokenId);
         vm.expectRevert();
-        address pool = factory.createNftFraction{value: 0.16 ether}(address(nft), tokenId, 0);
+        factory.createNftFraction{value: 0.16 ether}(address(nft), tokenId, 0);
         vm.stopPrank();
         vm.expectRevert();
         factory.createNftFraction{value: 0.16 ether}(address(nft), tokenId, 1000e18);

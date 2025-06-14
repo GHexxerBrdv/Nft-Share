@@ -5,14 +5,16 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
 import {NftPool} from "./NftPool.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
 contract PoolFactory is Ownable, ReentrancyGuard {
     error PoolFactory__NotAnOwnerOfNft();
     error PoolFactory__ZeroAmount();
     error PoolFactory__SendProperFee();
     error PoolFactory__TransactionFailed();
+    error PoolFactory__NftIsNOtTransfered();
 
-    uint256 public fee;
+    uint256 private fee;
 
     mapping(address user => address[] pool) public userToPool;
     address[] public pools;
@@ -30,16 +32,21 @@ contract PoolFactory is Ownable, ReentrancyGuard {
         nonReentrant
         returns (address)
     {
-        address caller = msg.sender;
+        address caller = msg.sender; 
+
+        require(nft.code.length > 0, "Not a contract");
 
         if (msg.value < fee) {
             revert PoolFactory__SendProperFee();
         }
-        uint256 refund = msg.value - fee;
-        (bool ok,) = payable(caller).call{value: refund}("");
-        if (!ok) {
-            revert PoolFactory__TransactionFailed();
-        }
+        /**
+         * @notice same as AtomNft contract i have removed this refund.
+         */
+        // uint256 refund = msg.value - fee;
+        // (bool ok,) = payable(caller).call{value: refund}("");
+        // if (!ok) {
+        //     revert PoolFactory__TransactionFailed();
+        // }
         if (IERC721(nft).ownerOf(tokenId) != caller) {
             revert PoolFactory__NotAnOwnerOfNft();
         }
@@ -49,6 +56,15 @@ contract PoolFactory is Ownable, ReentrancyGuard {
 
         NftPool pool = new NftPool(nft, tokenId, atomAmount, caller);
         IERC721(nft).transferFrom(caller, address(pool), tokenId);
+
+        /**
+         * @notice i have added this checks because anyone can create atoms by passing fake nft or such nft that reverts, 
+         * results into minting the token and pool does not own any nft.
+         */
+        if(IERC721(nft).ownerOf(tokenId) != address(pool)) {
+            revert PoolFactory__NftIsNOtTransfered();
+        }
+
         userToPool[caller].push(address(pool));
         pools.push(address(pool));
 
@@ -68,9 +84,12 @@ contract PoolFactory is Ownable, ReentrancyGuard {
     function withdrawFees() external onlyOwner nonReentrant {
         uint256 balance = address(this).balance;
         (bool ok,) = payable(owner()).call{value: balance}("");
-
         if (!ok) {
             revert PoolFactory__TransactionFailed();
         }
+    }
+
+    function getFee() external view returns(uint256) {
+        return fee;
     }
 }

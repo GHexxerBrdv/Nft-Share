@@ -20,11 +20,15 @@ contract AtomNft is ERC721, ERC721URIStorage, ReentrancyGuard, Ownable {
 
     function safeMint(string memory uri) external payable nonReentrant returns (uint256) {
         address caller = msg.sender;
+        /**
+         * @notice i have cashed the owner so that while making external calls every time the owner is not read from storage.
+         */
+        address owner = owner();
         if (msg.value < FEE) {
             revert AtomNft__SendFee();
         }
 
-        (bool ok,) = payable(owner()).call{value: FEE}("");
+        (bool ok,) = payable(owner).call{value: FEE}("");
         if (!ok) {
             revert AtomNft__FailedTransaction();
         }
@@ -32,12 +36,18 @@ contract AtomNft is ERC721, ERC721URIStorage, ReentrancyGuard, Ownable {
         _safeMint(caller, tokenId);
         _setTokenURI(tokenId, uri);
 
-        uint256 refund = msg.value - FEE;
-        (ok,) = payable(caller).call{value: refund}("");
-        if (!ok) {
-            revert AtomNft__FailedRefund();
-        }
+        /**
+         * @notice Refunds can be expensive because every time i refunds the user if they send more fees. 
+         * And it can be possible that they can send dust amount, 
+         * And for this dust amount the function will call external call and it can be more gas consuptive
+         * So, For he security reason is am removinf refund
+         */
 
+        // uint256 refund = msg.value - FEE;
+        // (ok,) = payable(caller).call{value: refund}("");
+        // if (!ok) {
+        //     revert AtomNft__FailedRefund();
+        // }
         return tokenId;
     }
 
