@@ -27,7 +27,7 @@ contract NftPoolFactory is Test {
         factory = deployer.run();
 
         owner = factory.owner();
-        fee = factory.fee();
+        fee = factory.getFee();
     }
 
     function test_deployment() public view {
@@ -76,7 +76,7 @@ contract NftPoolFactory is Test {
         vm.prank(owner);
         factory.withdrawFees();
 
-        assertEq(factory.fee(), 1 ether);
+        assertEq(fee, 1 ether);
         assertEq(address(factory).balance, 0);
         console2.log(owner.balance);
 
