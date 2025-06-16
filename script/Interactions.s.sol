@@ -16,9 +16,11 @@ contract Interactions is Script {
         address getAddress = DevOpsTools.get_most_recent_deployment("PoolFactory", block.chainid);
 
         vm.startBroadcast();
-        uint256 tokenId = AtomNft(addressNft).safeMint(url);
-        address pool = PoolFactory(getAddress).createNftFraction(addressNft, tokenId, atoms);
+        uint256 tokenId = AtomNft(addressNft).safeMint{value: 0.15 ether}(url);
+        AtomNft(addressNft).approve(getAddress, tokenId);
+        address pool = PoolFactory(getAddress).createNftFraction{value: 0.15 ether}(addressNft, tokenId, atoms);
         vm.stopBroadcast();
         console2.log("the address of created pool is: ", pool);
+        console2.log("amount in pool is:", NftPool(pool).getTotalAtom());
     }
 }
